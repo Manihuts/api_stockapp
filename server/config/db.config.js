@@ -1,7 +1,7 @@
 const dbConfig = {
     HOST: "localhost",
-    USER: "admin",
-    PASSWORD: "1234",
+    USER: "root",
+    PASSWORD: "root",
     DB: "stockapp",
     dialect: "mysql",
     pool: {
