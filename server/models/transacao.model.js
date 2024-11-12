@@ -23,7 +23,7 @@ export default (sequelize, Sequelize) => {
             allowNull: false
         },
         valor_total: {
-            type: Sequelize.DECIMAL,
+            type: Sequelize.DECIMAL(10, 2),
             allowNull: false
         },
         data: {
