@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
-db.sequelize.sync({})
+db.sequelize.sync({force: true})
 .then(() => {
   console.log("Banco de dados sincronizado!");
 })
