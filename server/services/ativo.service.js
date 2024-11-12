@@ -39,6 +39,32 @@ export const fetchAtivos = async (req,res) => {
     };
 };
 
+export const fetchUserAtivos = async (req, res) => {
+    const id = req.params.id;
+
+    if (!id) {
+        return res.status(400).send({
+            message: "ID do usuário não encontrado."
+        })
+    }
+
+    try {
+        const ativos = await User_ativo.findAll({ where: { user_id: id } });
+
+        if (!ativos) {
+            return res.status(404).send({
+                message: "Ativos do usuário não encontrados."
+            })
+        };
+
+        return res.status(200).send(ativos);
+    } catch (error) {
+        return res.status(500).send({
+            message: "Erro ao buscar dados dos ativos do usuário."
+        });
+    }
+};
+
 export const processaCompra = async (req,res) => {
     const { simbolo, quantidade, valor, tipo, userid } = req.body;
     const valor_total = valor * quantidade;
