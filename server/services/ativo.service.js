@@ -186,8 +186,8 @@ export const processaVenda = async (req, res) => {
                 data: new Date()
             }, { transaction: t });
 
-            // Se o usuário vender todas as unidades, deleta o registro do inventário
-            if (registro_ativo.quantidade === quantidade) {
+            registro_ativo.quantidade = Number(registro_ativo.quantidade) - Number(quantidade);
+            if (registro_ativo.quantidade <= 0) {                   // Se o usuário vender todas as unidades, deleta o registro do inventário
                 await User_ativo.destroy({
                     where: {
                         user_id: userid,
@@ -196,9 +196,7 @@ export const processaVenda = async (req, res) => {
                     }, transaction: t
                 });
             } else { 
-                // Se vender menos, atualiza o registro no lugar
-                registro_ativo.quantidade -= quantidade;
-                await registro_ativo.save({ transaction: t });
+                await registro_ativo.save({ transaction: t });      // Se vender menos, atualiza o registro no lugar
             };
             
             // Commita a transaction
