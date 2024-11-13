@@ -67,7 +67,7 @@ export const fetchUserAtivos = async (req,res) => {
 
 export const processaCompra = async (req,res) => {
     const { simbolo, quantidade, valor, tipo, userid } = req.body;
-    const valor_total = valor * quantidade;
+    const valor_total = parseFloat(valor) * parseInt(quantidade);
 
     if (!simbolo || !quantidade || !valor || !tipo || !userid) {
         return res.status(400).send({
@@ -95,7 +95,7 @@ export const processaCompra = async (req,res) => {
 
         try {
             // Atualiza o saldo do usuário
-            user.saldo -= valor_total;
+            user.saldo = parseFloat(user.saldo) - valor_total;
             await user.save({ transaction: t });
 
             // Registra uma nova transação de compra
@@ -141,7 +141,7 @@ export const processaCompra = async (req,res) => {
 
 export const processaVenda = async (req, res) => {
     const { ativo, valor_compra, quantidade, userid } = req.body;
-    const valor_total_venda = valor_compra * quantidade;
+    const valor_total_venda = parseFloat(valor_compra) * parseInt(quantidade);
 
     if (!ativo || !valor_compra || !quantidade || !userid) {
         return res.status(400).send({
@@ -173,7 +173,7 @@ export const processaVenda = async (req, res) => {
 
         try {
             // Atualiza o saldo do usuário
-            user.saldo += valor_total_venda;
+            user.saldo = parseFloat(user.saldo) + valor_total_venda;
             await user.save({ transaction: t });
 
             // Registra uma nova transação de venda
