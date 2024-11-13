@@ -197,7 +197,7 @@ export const processaVenda = async (req, res) => {
                 });
             } else { 
                 // Se vender menos, atualiza o registro no lugar
-                registro_ativo -= quantidade;
+                registro_ativo.quantidade -= quantidade;
                 await registro_ativo.save({ transaction: t });
             };
             
