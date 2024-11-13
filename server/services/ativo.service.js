@@ -39,7 +39,7 @@ export const fetchAtivos = async (req,res) => {
     };
 };
 
-export const fetchUserAtivos = async (req, res) => {
+export const fetchUserAtivos = async (req,res) => {
     const id = req.params.id;
 
     if (!id) {
@@ -94,13 +94,11 @@ export const processaCompra = async (req,res) => {
         const t = await db.sequelize.transaction();
 
         try {
-            console.log("Atualizando saldo do usuário...");
             // Atualiza o saldo do usuário
             user.saldo -= valor_total;
             await user.save({ transaction: t });
 
-            console.log("Registrando nova transação...");
-            // Registra uma nova transação
+            // Registra uma nova transação de compra
             await Transacao.create({
                 user_id: userid,
                 ativo: simbolo,
@@ -110,7 +108,6 @@ export const processaCompra = async (req,res) => {
                 data: new Date()
             }, { transaction: t }); 
 
-            console.log("Registrando novo ativo no inventário do usuário...");
             // Registra um novo ativo no inventário do user
             await User_ativo.create({
                 user_id: userid,
@@ -120,7 +117,6 @@ export const processaCompra = async (req,res) => {
                 valor_compra: valor
             }, { transaction: t });
 
-            console.log("Commit da transação...");
             // Commita a transaction
             await t.commit();
 
@@ -141,4 +137,88 @@ export const processaCompra = async (req,res) => {
             message: "Erro ao processar a compra do ativo."
         })
     }
+};
+
+export const processaVenda = async (req, res) => {
+    const { ativo, valor_compra, quantidade, userid } = req.body;
+    const valor_total_venda = valor_compra * quantidade;
+
+    if (!ativo || !valor_compra || !quantidade || !userid) {
+        return res.status(400).send({
+            message: "Parâmetros insuficientes!"
+        })
+    };
+
+    try {
+        // Verifica se o usuário existe no db
+        const user = await User.findOne({ where: { id: userid } });
+        
+        if (!user) {
+            return res.status(404).send({
+                message: "Usuário não encontrado!"
+            })
+        };
+
+        // Encontra o registro do ativo no inventário do usuário
+        const registro_ativo = await User_ativo.findOne({
+            where: {
+                user_id: userid,
+                ativo: ativo,
+                valor_compra: valor_compra
+            }
+        });
+
+        // Inicia uma transaction
+        const t = await db.sequelize.transaction();
+
+        try {
+            // Atualiza o saldo do usuário
+            user.saldo += valor_total_venda;
+            await user.save({ transaction: t });
+
+            // Registra uma nova transação de venda
+            await Transacao.create({
+                user_id: userid,
+                ativo,
+                quantidade,
+                tipo: "VENDA",
+                valor_total: valor_total_venda,
+                data: new Date()
+            }, { transaction: t });
+
+            // Se o usuário vender todas as unidades, deleta o registro do inventário
+            if (registro_ativo.quantidade === quantidade) {
+                await User_ativo.destroy({
+                    where: {
+                        user_id: userid,
+                        ativo: ativo,
+                        valor_compra: valor_compra
+                    }, transaction: t
+                });
+            } else { 
+                // Se vender menos, atualiza o registro no lugar
+                registro_ativo -= quantidade;
+                await registro_ativo.save({ transaction: t });
+            };
+            
+            // Commita a transaction
+            await t.commit();
+
+            return res.status(200).send({
+                message: "Venda realizada com sucesso!"
+            });
+        } catch (error) {
+            console.error("Erro específico na transação:", error);
+            // Desfaz a transaction, caso dê erro
+            await t.rollback();
+
+            return res.status(500).send({
+                message: "Erro no processamento da venda."
+            })
+        };
+    } catch (error) {
+        return res.status(500).send({
+            message: "Erro ao processar a venda do ativo."
+        })
+    };
 };
