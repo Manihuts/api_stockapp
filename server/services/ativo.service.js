@@ -9,17 +9,14 @@ const API_KEY = process.env.BRAPI_TOKEN;
 const API_URL = process.env.API_URL;
 
 export const fetchAtivos = async (req,res) => {
-    const { type, market } = req.query;
-
     try {
         const response = await axios.get(`${API_URL}/quote/list`, {
             headers: {
                 Authorization: `Bearer ${API_KEY}`
             },
             params: {
-                market: market || "B3",
-                type: type || "stock",
-                limit: 50
+                market: "B3",
+                limit: 200
             }
         });
 
@@ -141,7 +138,6 @@ export const processaCompra = async (req,res) => {
 
 export const processaVenda = async (req, res) => {
     const { ativo, valor_compra, quantidade, userid } = req.body;
-    const valor_total_venda = parseFloat(valor_compra) * parseInt(quantidade);
 
     if (!ativo || !valor_compra || !quantidade || !userid) {
         return res.status(400).send({
@@ -168,6 +164,33 @@ export const processaVenda = async (req, res) => {
             }
         });
 
+        if (!registro_ativo) {
+            return res.status(404).send({
+                message: "Registro do ativo não encontrado!"
+            });
+        };
+
+        // Busca a cotação atual da ação, para calcular o valor total da venda
+        const busca_ativo = await axios.get(`${API_URL}/quote/${ativo}`, {
+            headers: {
+                Authorization: `Bearer ${API_KEY}`
+            }
+        });
+
+        if (!busca_ativo) {
+            return res.status(404).send({
+                message: "Erro na busca do valor do ativo!"
+            });
+        };
+
+        const cotacao_ativo = busca_ativo.data.results[0].regularMarketPrice;
+
+        // Compara os valores totais na compra e na venda pra retornar o lucro/prejuízo
+        const valor_total_compra = parseFloat(valor_compra) * parseInt(quantidade);
+        const valor_total_venda = parseFloat(cotacao_ativo) * parseInt(quantidade);
+
+        const mudanca = valor_total_venda - valor_total_compra;
+
         // Inicia uma transaction
         const t = await db.sequelize.transaction();
 
@@ -183,11 +206,12 @@ export const processaVenda = async (req, res) => {
                 quantidade,
                 tipo: "VENDA",
                 valor_total: valor_total_venda,
+                mudanca,
                 data: new Date()
             }, { transaction: t });
 
             registro_ativo.quantidade = Number(registro_ativo.quantidade) - Number(quantidade);
-            if (registro_ativo.quantidade <= 0) {                   // Se o usuário vender todas as unidades, deleta o registro do inventário
+            if (registro_ativo.quantidade <= 0) {       // Se o usuário vender todas as unidades, deleta o registro do inventário                   
                 await User_ativo.destroy({
                     where: {
                         user_id: userid,
@@ -195,15 +219,15 @@ export const processaVenda = async (req, res) => {
                         valor_compra: valor_compra
                     }, transaction: t
                 });
-            } else { 
-                await registro_ativo.save({ transaction: t });      // Se vender menos, atualiza o registro no lugar
+            } else {        // Se vender menos, atualiza o registro no lugar                                                
+                await registro_ativo.save({ transaction: t });      
             };
             
             // Commita a transaction
             await t.commit();
 
             return res.status(200).send({
-                message: "Venda realizada com sucesso!"
+                message: "Venda realizada com sucesso!", mudanca
             });
         } catch (error) {
             console.error("Erro específico na transação:", error);

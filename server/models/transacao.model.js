@@ -26,6 +26,10 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.DECIMAL(10, 2),
             allowNull: false
         },
+        mudanca: {
+            type: Sequelize.DECIMAL(10, 2),
+            allowNull: true
+        },
         data: {
             type: Sequelize.DATE,
             allowNull: false
