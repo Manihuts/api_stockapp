@@ -12,14 +12,14 @@ export default (sequelize, Sequelize) => {
         },
         ativo: {
             type: Sequelize.STRING,
-            allowNull: false
+            allowNull: true
         },
         quantidade: {
             type: Sequelize.INTEGER,
-            allowNull: false
+            allowNull: true
         },
         tipo: {
-            type: Sequelize.ENUM("COMPRA", "VENDA"),
+            type: Sequelize.ENUM("COMPRA", "VENDA", "SAQUE", "DEPÓSITO", "DIVIDENDOS"),
             allowNull: false
         },
         valor_total: {

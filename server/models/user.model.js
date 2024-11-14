@@ -6,10 +6,6 @@ export default (sequelize, Sequelize) => {
             primaryKey: true,
             autoIncrement: true
         },
-        github_id: {
-            type: Sequelize.INTEGER,
-            allowNull: true
-        },
         profile_url: {
             type: Sequelize.STRING,
             allowNull: true

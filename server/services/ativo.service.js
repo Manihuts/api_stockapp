@@ -102,6 +102,7 @@ export const processaCompra = async (req,res) => {
                 quantidade,
                 tipo: "COMPRA",
                 valor_total,
+                mudanca: -(valor_total),
                 data: new Date()
             }, { transaction: t }); 
 

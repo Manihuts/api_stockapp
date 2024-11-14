@@ -49,7 +49,7 @@ passport.use(
             const user = await User.findOne({ where: { email } });
             if (!user) {
                 user = await User.create({
-                    github_id: profile.id,
+                    id: profile.id,
                     email: email,
                     nome: profile.name,
                     profile_url: profile._json.html_url,

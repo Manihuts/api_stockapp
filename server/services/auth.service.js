@@ -37,7 +37,7 @@ export const githubLogin = (req, res, next) => {
             });
         };
 
-        const idPayload = user.github_id ? user.github_id : user.id;
+        const idPayload = user.id;
         const token = jwt.sign({ id: idPayload  }, SECRET_KEY, { expiresIn: "1h" });
 
         return res.status(200).send({
