@@ -112,7 +112,8 @@ export const processaCompra = async (req,res) => {
                 ativo: simbolo,
                 tipo,
                 quantidade,
-                valor_compra: valor
+                valor_compra: valor,
+                isFavorito: 0
             }, { transaction: t });
 
             // Commita a transaction
@@ -245,3 +246,29 @@ export const processaVenda = async (req, res) => {
         })
     };
 };
+
+export const processaFavorito =  async (req, res) => {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    try {
+        const ativo = User_ativo.findByPk(id);
+
+        if (!ativo) {
+            return res.status(404).send({
+                message: "Ativo não encontrado."
+            });
+        };
+
+        ativo.isFavorito = estado;
+        await ativo.save();
+
+        return res.status(200).send({
+            message: "Favorito atualizado com sucesso."
+        });
+    } catch (error) {
+        return res.status(500).send({
+            message: "Erro ao atualizar favorito."
+        })
+    }
+}

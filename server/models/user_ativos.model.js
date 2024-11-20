@@ -25,6 +25,10 @@ export default (sequelize, Sequelize) => {
         valor_compra: {
             type: Sequelize.DECIMAL(10, 2),
             allowNull: false
+        },
+        isFavorito: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false
         }
     });
 

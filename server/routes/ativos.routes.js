@@ -1,6 +1,6 @@
 import { Router } from "express";
 import verifyToken from "../middleware/verifyToken.js";
-import { fetchAtivos, fetchUserAtivos, processaCompra, processaVenda } from "../services/ativo.service.js";
+import { fetchAtivos, fetchUserAtivos, processaCompra, processaFavorito, processaVenda } from "../services/ativo.service.js";
 
 const router = Router();
 
@@ -8,6 +8,7 @@ router.get("/fetch", fetchAtivos);                  // Busca informações de to
 router.get("/fetch/:id", fetchUserAtivos);          // Busca ativos de um usuário, pelo seu ID
 router.post("/buy", processaCompra);                // Processa a compra de um ativo
 router.post("/sell", processaVenda);                // Processa a venda de um ativo
+router.put("/fav/:id", processaFavorito);           // Favorita ou desfavorita um ativo
 
 export default (app) => {
     app.use("/ativos", router);
