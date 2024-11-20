@@ -31,7 +31,8 @@ export const fetchAtivos = async (req,res) => {
         return res.status(200).send(dados);
     } catch (error) {
         return res.status(500).send({
-            message: "Erro ao buscar dados dos ativos."
+            message: "Erro ao buscar dados dos ativos.",
+            error: error.message
         });
     };
 };
@@ -57,7 +58,8 @@ export const fetchUserAtivos = async (req,res) => {
         return res.status(200).send(ativos);
     } catch (error) {
         return res.status(500).send({
-            message: "Erro ao buscar dados dos ativos do usuário."
+            message: "Erro ao buscar dados dos ativos do usuário.",
+            error: error.message
         });
     }
 };
@@ -133,7 +135,8 @@ export const processaCompra = async (req,res) => {
         };
     } catch (error) {
         return res.status(500).send({
-            message: "Erro ao processar a compra do ativo."
+            message: "Erro ao processar a compra do ativo.",
+            error: error.message
         })
     }
 };
@@ -242,7 +245,8 @@ export const processaVenda = async (req, res) => {
         };
     } catch (error) {
         return res.status(500).send({
-            message: "Erro ao processar a venda do ativo."
+            message: "Erro ao processar a venda do ativo.",
+            error: error.message
         })
     };
 };
@@ -252,7 +256,7 @@ export const processaFavorito =  async (req, res) => {
     const { estado } = req.body;
 
     try {
-        const ativo = User_ativo.findByPk(id);
+        const ativo = await User_ativo.findByPk(id);
 
         if (!ativo) {
             return res.status(404).send({
@@ -268,7 +272,8 @@ export const processaFavorito =  async (req, res) => {
         });
     } catch (error) {
         return res.status(500).send({
-            message: "Erro ao atualizar favorito."
+            message: "Erro ao atualizar favorito.",
+            error: error.message
         })
     }
 }
