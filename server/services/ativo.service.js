@@ -80,7 +80,7 @@ export const fetchUserAtivos = async (req,res) => {
             console.log(`Buscando as mudanças percentuais para ${ativos.length} ativos...`);
 
             const ativosComChange = await Promise.all(ativos.map(async (atv) => {
-                const change = await fetchChangePercent(atv.simbolo);
+                const change = await fetchChangePercent(atv.ativo);
                 return {
                     ...atv.toJSON(),
                     change: change || "N/A"
