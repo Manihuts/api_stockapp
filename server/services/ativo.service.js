@@ -25,7 +25,8 @@ export const fetchAtivos = async (req,res) => {
             nome: ativo.name,
             simbolo: ativo.stock,
             valor: ativo.close,
-            tipo: ativo.type
+            tipo: ativo.type,
+            logo: ativo.logo
         }))
 
         return res.status(200).send(dados);
