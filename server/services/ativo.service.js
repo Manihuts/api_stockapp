@@ -39,16 +39,23 @@ export const fetchAtivos = async (req,res) => {
 };
 
 const fetchChangePercent = async (simbolo) => {
-    const response = await axios.get(`${API_URL}/quote/${simbolo}`, {
-        headers: {
-            Authorization: `Bearer ${API_KEY}`
-        }
-    });
+    try {
+        const response = await axios.get(`${API_URL}/quote/${simbolo}`, {
+            headers: {
+                Authorization: `Bearer ${API_KEY}`
+            }
+        });
+    
+        if (response.data.results && response.data.results.length > 0) {
+            return response.data.results[0].regularMarketChangePercent;
+        };
 
-    if (response.data.results && response.data.results.length > 0) {
-        return response.data.results[0].regularMarketChangePercent;
-    };
-    return null;
+        console.log(`Resultado não encontrado para o símbolo: ${simbolo}`);
+        return null;
+    } catch (error) {
+        console.error(`Erro ao buscar dados para o símbolo ${simbolo}:`, error.message);
+        return null;
+    }
 }
 
 export const fetchUserAtivos = async (req,res) => {
@@ -70,6 +77,8 @@ export const fetchUserAtivos = async (req,res) => {
         };
 
         try {
+            console.log(`Buscando as mudanças percentuais para ${ativos.length} ativos...`);
+
             const ativosComChange = await Promise.all(ativos.map(async (atv) => {
                 const change = await fetchChangePercent(atv.simbolo);
                 return {
@@ -78,14 +87,17 @@ export const fetchUserAtivos = async (req,res) => {
                 };
             }));
 
+            console.log('Ativos com mudança percentual:', ativosComChange);
             return res.status(200).send(ativosComChange);
         } catch (error) {
+            console.error('Erro na busca das mudanças percentuais dos ativos:', error.message);
             return res.status(500).send({
                 message: "Erro na busca das mudanças percentuais dos ativos.",
                 error: error.message
             });
         }
     } catch (error) {
+        console.error('Erro ao buscar dados dos ativos do usuário:', error.message);
         return res.status(500).send({
             message: "Erro ao buscar dados dos ativos do usuário.",
             error: error.message
