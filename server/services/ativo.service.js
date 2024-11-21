@@ -38,6 +38,19 @@ export const fetchAtivos = async (req,res) => {
     };
 };
 
+const fetchChangePercent = async (simbolo) => {
+    const response = await axios.get(`${API_URL}/quote/${simbolo}`, {
+        headers: {
+            Authorization: `Bearer ${API_KEY}`
+        }
+    });
+
+    if (response.data.results && response.data.results.length > 0) {
+        return response.data.results[0].regularMarketChangePercent;
+    };
+    return null;
+}
+
 export const fetchUserAtivos = async (req,res) => {
     const id = req.params.id;
 
@@ -50,13 +63,28 @@ export const fetchUserAtivos = async (req,res) => {
     try {
         const ativos = await User_ativo.findAll({ where: { user_id: id } });
 
-        if (!ativos) {
+        if (!ativos || ativos.length === 0) {
             return res.status(404).send({
                 message: "Ativos do usuário não encontrados."
             })
         };
 
-        return res.status(200).send(ativos);
+        try {
+            const ativosComChange = await Promise.all(ativos.map(async (atv) => {
+                const change = await fetchChangePercent(atv.simbolo);
+                return {
+                    ...atv.toJSON(),
+                    change: change || "N/A"
+                };
+            }));
+
+            return res.status(200).send(ativosComChange);
+        } catch (error) {
+            return res.status(500).send({
+                message: "Erro na busca das mudanças percentuais dos ativos.",
+                error: error.message
+            });
+        }
     } catch (error) {
         return res.status(500).send({
             message: "Erro ao buscar dados dos ativos do usuário.",
