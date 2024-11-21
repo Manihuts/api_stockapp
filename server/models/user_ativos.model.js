@@ -26,6 +26,10 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.DECIMAL(10, 2),
             allowNull: false
         },
+        logo: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
         isFavorito: {
             type: Sequelize.BOOLEAN,
             allowNull: false

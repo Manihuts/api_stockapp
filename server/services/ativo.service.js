@@ -66,10 +66,10 @@ export const fetchUserAtivos = async (req,res) => {
 };
 
 export const processaCompra = async (req,res) => {
-    const { simbolo, quantidade, valor, tipo, userid } = req.body;
+    const { simbolo, quantidade, valor, tipo, logo, userid } = req.body;
     const valor_total = parseFloat(valor) * parseInt(quantidade);
 
-    if (!simbolo || !quantidade || !valor || !tipo || !userid) {
+    if (!simbolo || !quantidade || !valor || !tipo || !logo || !userid) {
         return res.status(400).send({
             message: "Parâmetros insuficientes!"
         })
@@ -116,6 +116,7 @@ export const processaCompra = async (req,res) => {
                 tipo,
                 quantidade,
                 valor_compra: valor,
+                logo,
                 isFavorito: 0
             }, { transaction: t });
 
