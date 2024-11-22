@@ -19,7 +19,7 @@ export default (sequelize, Sequelize) => {
             allowNull: true
         },
         tipo: {
-            type: Sequelize.ENUM("COMPRA", "VENDA", "SAQUE", "DEPÓSITO", "DIVIDENDOS"),
+            type: Sequelize.ENUM("COMPRA", "VENDA", "SAQUE", "DEPÓSITO"),
             allowNull: false
         },
         valor_total: {

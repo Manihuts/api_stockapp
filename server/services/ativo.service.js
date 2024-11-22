@@ -8,7 +8,7 @@ const SERVER_URL = process.env.SERVER_URL;
 const API_KEY = process.env.BRAPI_TOKEN;
 const API_URL = process.env.API_URL;
 
-export const fetchAtivos = async (req,res) => {
+export const fetchAtivos = async (req, res) => {
     try {
         const response = await axios.get(`${API_URL}/quote/list`, {
             headers: {
@@ -58,7 +58,7 @@ const fetchChangePercent = async (simbolo) => {
     }
 }
 
-export const fetchUserAtivos = async (req,res) => {
+export const fetchUserAtivos = async (req, res) => {
     const id = req.params.id;
 
     if (!id) {
@@ -77,8 +77,6 @@ export const fetchUserAtivos = async (req,res) => {
         };
 
         try {
-            console.log(`Buscando as mudanças percentuais para ${ativos.length} ativos...`);
-
             const ativosComChange = await Promise.all(ativos.map(async (atv) => {
                 const change = await fetchChangePercent(atv.ativo);
                 return {
@@ -87,7 +85,7 @@ export const fetchUserAtivos = async (req,res) => {
                 };
             }));
 
-            console.log('Ativos com mudança percentual:', ativosComChange);
+            console.log('Ativos buscados:', ativosComChange);
             return res.status(200).send(ativosComChange);
         } catch (error) {
             console.error('Erro na busca das mudanças percentuais dos ativos:', error.message);
@@ -105,7 +103,41 @@ export const fetchUserAtivos = async (req,res) => {
     }
 };
 
-export const processaCompra = async (req,res) => {
+export const fetchEvolucaoSaldo = async (req,res) => {
+    const id = req.params.id;
+
+    if (!id) {
+        return res.status(400).send({
+            message: "ID do usuário não encontrado."
+        })
+    };
+
+    try {
+        const transacoes = await Transacao.findAll({ 
+            where: { user_id: id },
+            order: [['data', 'ASC']]
+        });
+
+        let saldo = 0;
+        let evolucao = [];
+
+        transacoes.forEach(t => {
+            saldo += parseFloat(t.mudanca);
+            evolucao.push({
+                saldo: saldo
+            });
+        });
+
+        return res.status(200).send(evolucao);
+    } catch (error) {
+        return res.status(500).send({
+            message: "Erro ao buscar a evolução do saldo do usuário.",
+            error: error.message
+        });
+    };
+};
+
+export const processaCompra = async (req, res) => {
     const { simbolo, quantidade, valor, tipo, logo, userid } = req.body;
     const valor_total = parseFloat(valor) * parseInt(quantidade);
 
@@ -318,4 +350,4 @@ export const processaFavorito =  async (req, res) => {
             error: error.message
         })
     }
-}
+};
