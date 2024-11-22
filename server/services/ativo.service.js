@@ -122,7 +122,8 @@ export const fetchEvolucaoSaldo = async (req,res) => {
         let evolucao = [];
 
         transacoes.forEach(t => {
-            saldo += parseFloat(t.mudanca);
+            const mudanca = parseFloat(t.mudanca) || 0;
+            saldo += mudanca;
             evolucao.push({
                 saldo: saldo
             });

@@ -134,6 +134,7 @@ export const addSaldo = async (req,res) => {
             user_id: id,
             tipo: "DEPÓSITO",
             valor_total: quantia,
+            mudanca: quantia,
             data: new Date()
         }, { transaction: t });
 
@@ -177,6 +178,7 @@ export const removeSaldo = async (req,res) => {
             user_id: id,
             tipo: "SAQUE",
             valor_total: quantia,
+            mudanca: -(quantia),
             data: new Date()
         }, { transaction: t });
 
