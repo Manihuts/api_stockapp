@@ -126,12 +126,21 @@ export const fetchEvolucaoSaldo = async (req,res) => {
         });
 
         transacoes.forEach(t => {
-            const mudanca = parseFloat(t.mudanca) || 0;
-            saldo += mudanca;
-            evolucao.push({
-                saldo: saldo,
-                data: t.data
-            });
+            if (t.tipo === "VENDA") {
+                const valor_total = parseFloat(t.valor_total) || 0;
+                saldo += valor_total;
+                evolucao.push({
+                    saldo: saldo,
+                    data: t.data
+                });
+            } else {
+                const mudanca = parseFloat(t.mudanca) || 0;
+                saldo += mudanca;
+                evolucao.push({
+                    saldo: saldo,
+                    data: t.data
+                });
+            };
         });
 
         return res.status(200).send(evolucao);
