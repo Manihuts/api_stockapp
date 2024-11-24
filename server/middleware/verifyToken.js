@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
-const mySecret = process.env.GITHUB_CLIENT_SECRET;
+const mySecret = process.env.JWT_SECRET_KEY;
 
 // Função para verificar o token jwt
 function verifyToken(req, res, next) {
