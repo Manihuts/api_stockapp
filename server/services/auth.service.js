@@ -29,7 +29,9 @@ export const githubLogin = (req, res, next) => {
     passport.authenticate("github",  (err, user, info) => {
         if (err) {
             return res.status(400).send({
-                message: "Erro na autenticação do usuário pelo Github.", ...info
+                message: "Erro na autenticação do usuário pelo Github.",
+                error: err,
+                ...info,
             });
         } else if (!user) {
             return res.status(404).send({
