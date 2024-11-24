@@ -171,25 +171,25 @@ export const fetchEvolucaoValorInvestido = async (req,res) => {
         let valor = 0;
         let evolucao = [];
         evolucao.push({
-            valor: valor,
+            saldo: valor,
             data: transacoes[0].data
         });
 
         transacoes.forEach(t => {
-            if (t.tipo === "COMPRA") {
+            if (t.tipo == "COMPRA") {
                 const mudanca = parseFloat(t.valor_total);
                 valor += mudanca;
 
                 evolucao.push({
-                    valor: valor,
+                    saldo: valor,
                     data: t.data
                 });
-            } else if (t.tipo === "VENDA") {
+            } else if (t.tipo == "VENDA") {
                 const mudanca = parseFloat(t.valor_total);
                 valor -= mudanca;
 
                 evolucao.push({
-                    valor: valor,
+                    saldo: valor,
                     data: t.data
                 });
             };
