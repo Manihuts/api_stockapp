@@ -53,7 +53,8 @@ passport.use(
                     email: email,
                     nome: profile.name,
                     profile_url: profile._json.html_url,
-                    saldo: 0
+                    saldo: 0,
+                    valor_investido: 0
                 })
             }
 
