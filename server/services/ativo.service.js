@@ -16,7 +16,7 @@ export const fetchAtivos = async (req, res) => {
             },
             params: {
                 market: "B3",
-                limit: 200
+                limit: 300
             }
         });
 
@@ -38,7 +38,7 @@ export const fetchAtivos = async (req, res) => {
     };
 };
 
-const fetchChangePercent = async (simbolo) => {
+export const fetchChangePercent = async (simbolo) => {
     try {
         const response = await axios.get(`${API_URL}/quote/${simbolo}`, {
             headers: {
@@ -143,6 +143,58 @@ export const fetchEvolucaoSaldo = async (req,res) => {
     };
 };
 
+//
+export const fetchEvolucaoValorInvestido = async (req,res) => {
+    const id = req.params.id;
+
+    if (!id) {
+        return res.status(400).send({
+            message: "ID do usuário não encontrado."
+        })
+    };
+
+    try {
+        const transacoes = await Transacao.findAll({ 
+            where: { user_id: id },
+            order: [['data', 'ASC']]
+        });
+
+        let valor = 0;
+        let evolucao = [];
+        evolucao.push({
+            valor: valor,
+            data: transacoes[0].data
+        });
+
+        transacoes.forEach(t => {
+            if (t.tipo === "COMPRA") {
+                const mudanca = parseFloat(t.valor_total);
+                valor += mudanca;
+
+                evolucao.push({
+                    valor: valor,
+                    data: t.data
+                });
+            } else if (t.tipo === "VENDA") {
+                const mudanca = parseFloat(t.valor_total);
+                valor -= mudanca;
+
+                evolucao.push({
+                    valor: valor,
+                    data: t.data
+                });
+            };
+        });
+
+        return res.status(200).send(evolucao);
+    } catch (error) {
+        return res.status(500).send({
+            message: "Erro ao buscar a evolução do valor investido do usuário.",
+            error: error.message
+        });
+    };
+};
+
 export const processaCompra = async (req, res) => {
     const { simbolo, quantidade, valor, tipo, logo, userid } = req.body;
     const valor_total = parseFloat(valor) * parseInt(quantidade);
@@ -174,6 +226,7 @@ export const processaCompra = async (req, res) => {
         try {
             // Atualiza o saldo do usuário
             user.saldo = parseFloat(user.saldo) - valor_total;
+            user.valor_investido = parseFloat(user.valor_investido) + valor_total;
             await user.save({ transaction: t });
 
             // Registra uma nova transação de compra
@@ -282,6 +335,7 @@ export const processaVenda = async (req, res) => {
         try {
             // Atualiza o saldo do usuário
             user.saldo = parseFloat(user.saldo) + valor_total_venda;
+            user.valor_investido = parseFloat(user.valor_investido) - valor_total_compra;
             await user.save({ transaction: t });
 
             // Registra uma nova transação de venda

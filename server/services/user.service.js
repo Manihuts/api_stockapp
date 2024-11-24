@@ -26,7 +26,8 @@ export const create = async (req,res) => {
             nome: nome,
             email: email,
             senha: senhaCriptografada,
-            saldo: 0
+            saldo: 0,
+            valor_investido: 0
         };
 
        const newUser = await User.create(user);

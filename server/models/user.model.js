@@ -26,6 +26,10 @@ export default (sequelize, Sequelize) => {
         saldo: {
             type: Sequelize.DECIMAL(10, 2),
             allowNull: false
+        },
+        valor_investido: {
+            type: Sequelize.DECIMAL(10, 2),
+            allowNull: false
         }
     });
 
