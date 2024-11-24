@@ -51,7 +51,7 @@ passport.use(
                 user = await User.create({
                     id: profile.id,
                     email: email,
-                    nome: profile.name,
+                    nome: profile.username,
                     profile_url: profile._json.html_url,
                     saldo: 0,
                     valor_investido: 0
