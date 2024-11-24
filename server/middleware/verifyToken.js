@@ -8,13 +8,13 @@ function verifyToken(req, res, next) {
     const token = req.headers["authorization"];
 
     if (!token) {
-        return res.status(403).send("Token não fornecido - Acesso negado!");
+        return res.status(403).send("Token não fornecido -> ACESSO NEGADO!");
     };
 
     const bearerToken = token.split(" ")[1];
     jwt.verify(bearerToken, mySecret, (err, decoded) => {
         if (err) {
-            return res.status(401).send("Token inválido - Acesso negado!");
+            return res.status(401).send("Token inválido -> ACESSO NEGADO!");
         }
         req.user = decoded;
         next();

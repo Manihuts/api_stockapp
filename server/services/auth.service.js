@@ -37,14 +37,19 @@ export const githubLogin = (req, res, next) => {
             });
         };
 
-        const idPayload = user.id;
-        const token = jwt.sign({ id: idPayload  }, SECRET_KEY, { expiresIn: "1h" });
+        const token = jwt.sign({ id: user.id  }, SECRET_KEY, { expiresIn: "1h" });
 
-        return res.status(200).send({
-            token,
-            user: { id: idPayload, name: user.nome },
-            message: "Login pelo Github realizado com sucesso!"
-        });
+        const userData = {
+            id: user.id,
+            name: user.nome,
+            token: token
+        };
 
+        return res.status(200).send(
+            `<script>
+                const data = ${JSON.stringify(userData)};
+                window.ReactNativeWebView.postMessage(JSON.stringify(data));
+            </script>`
+        );
     })(req, res, next);
 };
